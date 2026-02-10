@@ -1,34 +1,30 @@
-/***********************************************************
-* Developer: Minhas Kamal (minhaskamal024@gmail.com)       *
-* Website: https://github.com/MinhasKamal/DownGit          *
-* License: MIT License                                     *
-***********************************************************/
-
-var downGitModule = angular.module('downGitModule', [
-]);
+var downGitModule = angular.module('downGitModule', []);
 
 downGitModule.factory('downGitService', [
     '$http',
     '$q',
-
     function ($http, $q) {
         var repoInfo = {};
 
         var parseInfo = function(parameters) {
             var repoPath = new URL(parameters.url).pathname;
+            
+            if (repoPath.endsWith('/')) {
+                repoPath = repoPath.slice(0, -1);
+            }
+            
             var splitPath = repoPath.split("/");
             var info = {};
 
             info.author = splitPath[1];
             info.repository = splitPath[2];
             info.branch = splitPath[4];
-
             info.rootName = splitPath[splitPath.length-1];
+
             if(!!splitPath[4]){
-                info.resPath = repoPath.substring(
-                    repoPath.indexOf(splitPath[4])+splitPath[4].length+1
-                );
+                info.resPath = splitPath.slice(5).join("/");
             }
+            
             info.urlPrefix = "https://api.github.com/repos/"+
                 info.author+"/"+info.repository+"/contents/";
             info.urlPostfix = "?ref="+info.branch;
@@ -41,11 +37,9 @@ downGitModule.factory('downGitService', [
 
             if(parameters.rootDirectory=="false"){
                 info.rootDirectoryName = "";
-
             } else if(!parameters.rootDirectory || parameters.rootDirectory=="" ||
                 parameters.rootDirectory=="true"){
                 info.rootDirectoryName = info.rootName+"/";
-
             } else{
                 info.rootDirectoryName = parameters.rootDirectory+"/";
             }
@@ -55,7 +49,6 @@ downGitModule.factory('downGitService', [
 
         var downloadDir = function(progress){
             progress.isProcessing.val = true;
-
             var dirPaths = [];
             var files = [];
             var requestedPromises = [];
@@ -69,7 +62,6 @@ downGitModule.factory('downGitService', [
                 for(var i=response.data.length-1; i>=0; i--){
                     if(response.data[i].type=="dir"){
                         dirPaths.push(response.data[i].path);
-
                     } else{
                         if(response.data[i].download_url){
                             getFile(response.data[i].path,
@@ -94,8 +86,11 @@ downGitModule.factory('downGitService', [
             var zip = new JSZip();
             $q.all(requestedPromises).then(function(data) {
                 for(var i=files.length-1; i>=0; i--){
+                    var pathOffset = decodeURI(repoInfo.resPath).length;
+                    var finalPathOffset = pathOffset > 0 ? pathOffset + 1 : 0;
+                    
                     zip.file(
-                        repoInfo.rootDirectoryName+files[i].path.substring(decodeURI(repoInfo.resPath).length+1),
+                        repoInfo.rootDirectoryName + files[i].path.substring(finalPathOffset),
                         files[i].data
                     );
                 }

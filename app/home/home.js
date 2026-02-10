@@ -1,9 +1,3 @@
-/***********************************************************
-* Developer: Minhas Kamal (minhaskamal024@gmail.com)       *
-* Website: https://github.com/MinhasKamal/DownGit          *
-* License: MIT License                                     *
-***********************************************************/
-
 var homeModule = angular.module('homeModule', [
     'ngRoute',
     'downGitModule',
@@ -11,7 +5,6 @@ var homeModule = angular.module('homeModule', [
 
 homeModule.config([
     '$routeProvider',
-
     function ($routeProvider) {
         $routeProvider
             .when('/home', {
@@ -22,7 +15,6 @@ homeModule.config([
                 '$location',
                 'toastr',
                 'downGitService',
-
                 function($scope, $routeParams, $location, toastr, downGitService) {
                     $scope.downUrl = "";
                     $scope.url = "";
@@ -32,7 +24,7 @@ homeModule.config([
 
                     var templateUrl = "https?://github.com/.+/.+";
                     var downloadUrlInfix = "#/home?url=";
-                    var downloadUrlPrefix = "https://minhaskamal.github.io/DownGit/"+downloadUrlInfix;
+                    var downloadUrlPrefix = "https://gitdl.heyfordy.dev/"+downloadUrlInfix;
 
                     if ($routeParams.url) {
                         $scope.url = $routeParams.url;
@@ -78,7 +70,6 @@ homeModule.config([
                     $scope.download = function() {
                         window.location = downloadUrlInfix+$scope.url;
                     };
-
                 }],
             });
     }
